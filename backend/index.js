@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
 const cryptoRoutes = require('./routes/cryptoRoutes');
 
+
 dotenv.config();
 
 const app = express();
@@ -19,14 +20,31 @@ app.use(cors({
 
 const DB = process.env.MONGODB_URI || 'mongodb://localhost:27017/coinbase_clone';
 
-/*
+
 mongoose.connect(DB).then(() => {
   console.log('DB connection successful!');
 }).catch(err => {
   console.log('DB connection error:', err);
 });
-*/
+
 console.log('Running in MOCK mode (no MongoDB required)');
+
+const Crypto = require('./models/Crypto');
+app.get('/api/crypto', async (req, res) => {
+  try {
+    const cryptos = await Crypto.find();
+    res.json(cryptos);
+  } catch (err) {
+    console.error('Error fetching cryptos:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+require('dotenv').config();
+
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/crypto', cryptoRoutes);
